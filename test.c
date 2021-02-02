@@ -28,6 +28,12 @@ int main() {
        GetCurrentProcess(),
       &hook
    );
+
+   printf("Orig bytes:");
+   for (int b=0; b<sizeof(function_entry_point_bytes_t); b++) {
+      printf(" %x", (unsigned char) hook.orig_entry_bytes[b]);
+   }
+   printf("\n");
    
 
    MessageBoxA(NULL, "Hooked 1", "foo", MB_OK);

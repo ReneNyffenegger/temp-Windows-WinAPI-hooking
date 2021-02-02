@@ -59,6 +59,7 @@ void HookWinAPIFunction(
       printf("bytes read = %d!!!!\n", bytesRead);
    }
 
+
    function_entry_point_bytes_t patch;
 
    void *address_of_hook = fn_hook;
