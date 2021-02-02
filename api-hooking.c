@@ -9,7 +9,7 @@
 
 // FARPROC messageBoxAddress = NULL;
 SIZE_T  bytesWritten = 0;
-char    messageBoxOriginalBytes[6] = {};
+// char    messageBoxOriginalBytes[6] = {};
 
 void modifyFunctionEntry(
    hook_t                       hook,
@@ -51,7 +51,7 @@ void HookWinAPIFunction(
    ReadProcessMemory(
       hook->process, // GetCurrentProcess(),
       fn_orig, // messageBoxAddress,
-      messageBoxOriginalBytes,
+      hook->function_entry_point_bytes, //  messageBoxOriginalBytes,
       sizeof(function_entry_point_bytes_t),
       &bytesRead
    );
@@ -86,8 +86,8 @@ void UnHookWinAPIFunction(hook_t hook) {
    WriteProcessMemory(
       GetCurrentProcess(),
       hook.fn_orig, // messageBoxAddress,
-      messageBoxOriginalBytes,
-      sizeof(messageBoxOriginalBytes),
+      hook.function_entry_point_bytes, // messageBoxOriginalBytes,
+      sizeof(function_entry_point_bytes_t),
      &bytesWritten
    );
 
@@ -146,7 +146,6 @@ int main() {
    HookWinAPIFunction(
        GetProcAddress(library, "MessageBoxA"), // messageBoxAddress,
        HookedMessageBox,
-//     messageBoxOriginalBytes,
       &hook
    );
    
