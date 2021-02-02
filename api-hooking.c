@@ -20,7 +20,7 @@ void modifyFunctionEntry(
 void HookWinAPIFunction(
            void*                         fn_orig,
            void*                         fn_hook,
-           function_entry_point_bytes_t  orig
+           hook_t*     hook       
      ) {
 
    SIZE_T bytesRead = 0;
@@ -95,8 +95,9 @@ int main() {
 
 */
 
-   function_entry_point_bytes_t    orig;
-   HookWinAPIFunction(messageBoxAddress, messageBoxOriginalBytes, orig);
+// function_entry_point_bytes_t    orig;
+   hook_t                          hook;
+   HookWinAPIFunction(messageBoxAddress, messageBoxOriginalBytes, &hook);
    
 // create a patch "push <address of new MessageBoxA); ret"
    void *hookedMessageBoxAddress = &HookedMessageBox;

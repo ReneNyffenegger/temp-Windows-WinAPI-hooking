@@ -1,6 +1,6 @@
 typedef char function_entry_point_bytes_t[6];
 
-struct {
+typedef struct {
    void*                          fn_orig;
    void*                          fn_hook;
    function_entry_point_bytes_t   function_entry_point_bytes;
@@ -9,5 +9,6 @@ struct {
 void HookWinAPIFunction(
            void*       fn_orig,
            void*       fn_hook,
-           function_entry_point_bytes_t  orig
+           hook_t*     hook       
+//         function_entry_point_bytes_t  orig
      );
