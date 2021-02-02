@@ -43,11 +43,13 @@ void HookWinAPIFunction(
    SIZE_T bytesRead = 0;
 
    hook->fn_orig = fn_orig;
+
+   hook->process = GetCurrentProcess();
 // hook->fn_hook = fn_hook;
 
 // save the first 6 bytes of the original MessageBoxA function - will need for unhooking
    ReadProcessMemory(
-      GetCurrentProcess(),
+      hook->process, // GetCurrentProcess(),
       fn_orig, // messageBoxAddress,
       messageBoxOriginalBytes,
       sizeof(function_entry_point_bytes_t),
