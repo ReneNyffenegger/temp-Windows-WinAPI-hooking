@@ -127,10 +127,10 @@ int main() {
      messageBoxOriginalBytes, &hook);
    
 // create a patch "push <address of new MessageBoxA); ret"
-   void *hookedMessageBoxAddress = &HookedMessageBox;
+// void *hookedMessageBoxAddress = &HookedMessageBox;
    char patch[6] = { 0 };
    memcpy_s(patch, 1, "\x68", 1);
-   memcpy_s(patch + 1, 4, &hookedMessageBoxAddress, 4);
+   memcpy_s(patch + 1, 4, HookedMessageBox /* &hookedMessageBoxAddress */, 4);
    memcpy_s(patch + 5, 1, "\xC3", 1);
 
 // patch the MessageBoxA
