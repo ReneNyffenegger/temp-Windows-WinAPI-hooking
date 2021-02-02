@@ -12,9 +12,25 @@ SIZE_T  bytesWritten = 0;
 char    messageBoxOriginalBytes[6] = {};
 
 void modifyFunctionEntry(
+   hook_t                       hook,
    function_entry_point_bytes_t bytes
 )
 {
+   SIZE_T  bytesWritten = 0;
+
+   WriteProcessMemory(
+      GetCurrentProcess(),
+      hook.fn_orig,
+      bytes, // messageBoxOriginalBytes,
+      sizeof(function_entry_point_bytes_t), // sizeof(messageBoxOriginalBytes),
+     &bytesWritten
+   );
+
+   if (bytesWritten != sizeof(function_entry_point_bytes_t)) {
+
+      printf("bytesWritten = %d!!!!\n", bytesWritten);
+
+   }
 
 }
 
