@@ -5,37 +5,19 @@
 #include <stdio.h>
 #include <Windows.h>
 
+#include "api-hooking.h"
+
 FARPROC messageBoxAddress = NULL;
 SIZE_T  bytesWritten = 0;
 char    messageBoxOriginalBytes[6] = {};
 
-int __stdcall HookedMessageBox(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType) {
-   
-//
-// 
-   printf("Caption: %s\nText:    %s\n", lpCaption, lpText);
-   
-// unpatch MessageBoxA
-   WriteProcessMemory(
-      GetCurrentProcess(),
-      (LPVOID) messageBoxAddress,
-      messageBoxOriginalBytes,
-      sizeof(messageBoxOriginalBytes),
-     &bytesWritten
-   );
-   
-// call the original MessageBoxA
-   return MessageBoxA(NULL, lpText, lpCaption, uType);
-}
+void HookWinAPIFunction(
+           void*       fn_orig,
+           void*       fn_hook,
+           api_hook_t  orig
+     ) {
 
-int main() {
-
-   MessageBoxA(NULL, "Not yet hooked", "Hello", MB_OK);
-
-   HINSTANCE library = LoadLibraryA("user32.dll");
    SIZE_T bytesRead = 0;
-   
-   messageBoxAddress = GetProcAddress(library, "MessageBoxA");
 
 // save the first 6 bytes of the original MessageBoxA function - will need for unhooking
    ReadProcessMemory(
@@ -45,6 +27,70 @@ int main() {
       6,
       &bytesRead
    );
+
+}
+
+void UnHookWinAPIFunction() {
+
+   WriteProcessMemory(
+      GetCurrentProcess(),
+      (LPVOID) messageBoxAddress,
+      messageBoxOriginalBytes,
+      sizeof(messageBoxOriginalBytes),
+     &bytesWritten
+   );
+
+}
+
+int __stdcall HookedMessageBox(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType) {
+   
+//
+// 
+   printf("Caption: %s\nText:    %s\n", lpCaption, lpText);
+
+   /*
+   
+// unpatch MessageBoxA
+
+   WriteProcessMemory(
+      GetCurrentProcess(),
+      (LPVOID) messageBoxAddress,
+      messageBoxOriginalBytes,
+      sizeof(messageBoxOriginalBytes),
+     &bytesWritten
+   );
+
+   */
+   
+// call the original MessageBoxA
+// return MessageBoxA(NULL, lpText, lpCaption, uType);
+   return 0;
+}
+
+int main() {
+
+   MessageBoxA(NULL, "Not yet hooked", "Hello", MB_OK);
+
+   HINSTANCE library = LoadLibraryA("user32.dll");
+// SIZE_T bytesRead = 0;
+   
+   messageBoxAddress = GetProcAddress(library, "MessageBoxA");
+
+/*
+
+// save the first 6 bytes of the original MessageBoxA function - will need for unhooking
+   ReadProcessMemory(
+      GetCurrentProcess(),
+      messageBoxAddress,
+      messageBoxOriginalBytes,
+      6,
+      &bytesRead
+   );
+
+*/
+
+   api_hook_t    orig;
+   HookWinAPIFunction(messageBoxAddress, messageBoxOriginalBytes, orig);
    
 // create a patch "push <address of new MessageBoxA); ret"
    void *hookedMessageBoxAddress = &HookedMessageBox;
@@ -59,6 +105,10 @@ int main() {
 // show messagebox after hooking
    MessageBoxA(NULL, "Hooked 1", "hi", MB_OK);
    MessageBoxA(NULL, "Hooked 2", "hi", MB_OK);
+
+   UnHookWinAPIFunction();
+
+   MessageBoxA(NULL, "Unhooked agaain", "hi", MB_OK);
 
    return 0;
 }
