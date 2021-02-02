@@ -7,13 +7,14 @@
 
 #include "api-hooking.h"
 
-FARPROC messageBoxAddress = NULL;
+// FARPROC messageBoxAddress = NULL;
 SIZE_T  bytesWritten = 0;
 char    messageBoxOriginalBytes[6] = {};
 
 void modifyFunctionEntry(
    function_entry_point_bytes_t bytes
-) {
+)
+{
 
 }
 
@@ -25,22 +26,28 @@ void HookWinAPIFunction(
 
    SIZE_T bytesRead = 0;
 
+   hook->fn_orig = fn_orig;
+// hook->fn_hook = fn_hook;
+
 // save the first 6 bytes of the original MessageBoxA function - will need for unhooking
    ReadProcessMemory(
       GetCurrentProcess(),
-      messageBoxAddress,
+      fn_orig, // messageBoxAddress,
       messageBoxOriginalBytes,
-      6,
+      sizeof(function_entry_point_bytes_t),
       &bytesRead
    );
 
+   if (bytesRead != sizeof(function_entry_point_bytes_t)) {
+      printf("bytes read = %d!!!!\n", bytesRead);
+   }
 }
 
-void UnHookWinAPIFunction() {
+void UnHookWinAPIFunction(hook_t hook) {
 
    WriteProcessMemory(
       GetCurrentProcess(),
-      messageBoxAddress,
+      hook.fn_orig, // messageBoxAddress,
       messageBoxOriginalBytes,
       sizeof(messageBoxOriginalBytes),
      &bytesWritten
@@ -80,7 +87,7 @@ int main() {
    HINSTANCE library = LoadLibraryA("user32.dll");
 // SIZE_T bytesRead = 0;
    
-   messageBoxAddress = GetProcAddress(library, "MessageBoxA");
+// void* messageBoxAddress = GetProcAddress(library, "MessageBoxA");
 
 /*
 
@@ -97,7 +104,9 @@ int main() {
 
 // function_entry_point_bytes_t    orig;
    hook_t                          hook;
-   HookWinAPIFunction(messageBoxAddress, messageBoxOriginalBytes, &hook);
+   HookWinAPIFunction(
+     GetProcAddress(library, "MessageBoxA"), // messageBoxAddress,
+     messageBoxOriginalBytes, &hook);
    
 // create a patch "push <address of new MessageBoxA); ret"
    void *hookedMessageBoxAddress = &HookedMessageBox;
@@ -109,7 +118,7 @@ int main() {
 // patch the MessageBoxA
    WriteProcessMemory(
       GetCurrentProcess(),
-      messageBoxAddress,
+      hook.fn_orig, // messageBoxAddress,
       patch,
       sizeof(patch),
       &bytesWritten
@@ -119,7 +128,7 @@ int main() {
    MessageBoxA(NULL, "Hooked 1", "hi", MB_OK);
    MessageBoxA(NULL, "Hooked 2", "hi", MB_OK);
 
-   UnHookWinAPIFunction();
+   UnHookWinAPIFunction(hook);
 
    MessageBoxA(NULL, "Unhooked agaain", "hi", MB_OK);
 
