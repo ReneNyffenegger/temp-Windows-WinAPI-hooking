@@ -8,8 +8,10 @@
 #include "api-hooking.h"
 
 // FARPROC messageBoxAddress = NULL;
-SIZE_T  bytesWritten = 0;
+// SIZE_T  bytesWritten = 0;
 // char    messageBoxOriginalBytes[6] = {};
+
+
 
 void modifyFunctionEntry(
    hook_t                       hook,
@@ -19,7 +21,7 @@ void modifyFunctionEntry(
    SIZE_T  bytesWritten = 0;
 
    WriteProcessMemory(
-      GetCurrentProcess(),
+      hook.process, // GetCurrentProcess(),
       hook.fn_orig,
       bytes, // messageBoxOriginalBytes,
       sizeof(function_entry_point_bytes_t), // sizeof(messageBoxOriginalBytes),
@@ -69,6 +71,12 @@ void HookWinAPIFunction(
    memcpy_s(patch + 1, 4, &address_of_hook        , 4);  // address of address of hook!
    memcpy_s(patch + 5, 1, "\xC3"                  , 1);
 
+   modifyFunctionEntry(
+     *hook,
+      patch
+   );
+
+/*
 // patch the MessageBoxA
    WriteProcessMemory(
       GetCurrentProcess(),
@@ -77,12 +85,19 @@ void HookWinAPIFunction(
       sizeof(patch),
       &bytesWritten
    );
+*/
 
 
 }
 
 void UnHookWinAPIFunction(hook_t hook) {
 
+   modifyFunctionEntry(
+      hook,
+      hook.function_entry_point_bytes
+   );
+
+/*
    WriteProcessMemory(
       GetCurrentProcess(),
       hook.fn_orig, // messageBoxAddress,
@@ -90,6 +105,7 @@ void UnHookWinAPIFunction(hook_t hook) {
       sizeof(function_entry_point_bytes_t),
      &bytesWritten
    );
+   */
 
 }
 
