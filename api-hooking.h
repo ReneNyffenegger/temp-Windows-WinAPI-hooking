@@ -1,7 +1,7 @@
-typedef char api_hook_t[6];
+typedef char function_entry_point_bytes_t[6];
 
 void HookWinAPIFunction(
            void*       fn_orig,
            void*       fn_hook,
-           api_hook_t  orig
+           function_entry_point_bytes_t  orig
      );

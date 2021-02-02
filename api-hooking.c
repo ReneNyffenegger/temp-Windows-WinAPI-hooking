@@ -11,10 +11,16 @@ FARPROC messageBoxAddress = NULL;
 SIZE_T  bytesWritten = 0;
 char    messageBoxOriginalBytes[6] = {};
 
+void modifyFunctionEntry(
+   function_entry_point_bytes_t bytes
+) {
+
+}
+
 void HookWinAPIFunction(
-           void*       fn_orig,
-           void*       fn_hook,
-           api_hook_t  orig
+           void*                         fn_orig,
+           void*                         fn_hook,
+           function_entry_point_bytes_t  orig
      ) {
 
    SIZE_T bytesRead = 0;
@@ -34,7 +40,7 @@ void UnHookWinAPIFunction() {
 
    WriteProcessMemory(
       GetCurrentProcess(),
-      (LPVOID) messageBoxAddress,
+      messageBoxAddress,
       messageBoxOriginalBytes,
       sizeof(messageBoxOriginalBytes),
      &bytesWritten
@@ -89,7 +95,7 @@ int main() {
 
 */
 
-   api_hook_t    orig;
+   function_entry_point_bytes_t    orig;
    HookWinAPIFunction(messageBoxAddress, messageBoxOriginalBytes, orig);
    
 // create a patch "push <address of new MessageBoxA); ret"
@@ -100,7 +106,13 @@ int main() {
    memcpy_s(patch + 5, 1, "\xC3", 1);
 
 // patch the MessageBoxA
-   WriteProcessMemory(GetCurrentProcess(), (LPVOID)messageBoxAddress, patch, sizeof(patch), &bytesWritten);
+   WriteProcessMemory(
+      GetCurrentProcess(),
+      messageBoxAddress,
+      patch,
+      sizeof(patch),
+      &bytesWritten
+   );
 
 // show messagebox after hooking
    MessageBoxA(NULL, "Hooked 1", "hi", MB_OK);
