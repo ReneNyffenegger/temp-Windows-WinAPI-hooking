@@ -59,6 +59,28 @@ void HookWinAPIFunction(
    if (bytesRead != sizeof(function_entry_point_bytes_t)) {
       printf("bytes read = %d!!!!\n", bytesRead);
    }
+
+/*
+
+// create a patch "push <address of new MessageBoxA); ret"
+   void *address_of_orig_function = hook->fn_orig;
+   char patch[6] = { 0 };
+   memcpy_s(patch    , 1, "\x68"                   , 1);
+// memcpy_s(patch + 1, 4, &hookedMessageBoxAddress , 4);
+   memcpy_s(patch + 1, 4, &address_of_orig_function,  4); // Address of address of orig function!
+   memcpy_s(patch + 5, 1, "\xC3"                   , 1);
+
+// patch the MessageBoxA
+   WriteProcessMemory(
+      GetCurrentProcess(),
+      hook->fn_orig, // messageBoxAddress,
+      patch,
+      sizeof(patch),
+     &bytesWritten
+   );
+
+   */
+
 }
 
 void UnHookWinAPIFunction(hook_t hook) {
@@ -122,15 +144,22 @@ int main() {
 
 // function_entry_point_bytes_t    orig;
    hook_t                          hook;
+
    HookWinAPIFunction(
-     GetProcAddress(library, "MessageBoxA"), // messageBoxAddress,
-     messageBoxOriginalBytes, &hook);
+       GetProcAddress(library, "MessageBoxA"), // messageBoxAddress,
+       messageBoxOriginalBytes,
+      &hook
+   );
    
+
 // create a patch "push <address of new MessageBoxA); ret"
-   void *hookedMessageBoxAddress = &HookedMessageBox;
-   char patch[6] = { 0 };
+// char patch[6] = { 0 };
+   function_entry_point_bytes_t patch = { 0 };
+
+   void *address_of_hook = HookedMessageBox;
+
    memcpy_s(patch    , 1, "\x68"                  , 1);
-   memcpy_s(patch + 1, 4, &hookedMessageBoxAddress, 4);
+   memcpy_s(patch + 1, 4, &address_of_hook        , 4);  // address of address of hook!
    memcpy_s(patch + 5, 1, "\xC3"                  , 1);
 
 // patch the MessageBoxA
