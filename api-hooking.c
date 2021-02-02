@@ -7,14 +7,9 @@
 
 #include "api-hooking.h"
 
-// FARPROC messageBoxAddress = NULL;
-// SIZE_T  bytesWritten = 0;
-// char    messageBoxOriginalBytes[6] = {};
-
-
-
 void modifyFunctionEntry(
    hook_t                       hook,
+// HANDLE                       process,
    function_entry_point_bytes_t bytes
 )
 {
@@ -37,8 +32,9 @@ void modifyFunctionEntry(
 }
 
 void HookWinAPIFunction(
-           void*                         fn_orig,
-           void*                         fn_hook,
+           void*       fn_orig,
+           void*       fn_hook,
+           HANDLE      process,
            hook_t*     hook       
      ) {
 
@@ -46,14 +42,15 @@ void HookWinAPIFunction(
 
    hook->fn_orig = fn_orig;
 
-   hook->process = GetCurrentProcess();
-// hook->fn_hook = fn_hook;
+   hook->process = process; // GetCurrentProcess();
 
-// save the first 6 bytes of the original MessageBoxA function - will need for unhooking
+//
+// Save hooked function's original bytes for unhooking
+//
    ReadProcessMemory(
-      hook->process, // GetCurrentProcess(),
-      fn_orig, // messageBoxAddress,
-      hook->function_entry_point_bytes, //  messageBoxOriginalBytes,
+      hook->process,
+      fn_orig,
+      hook->orig_entry_bytes,
       sizeof(function_entry_point_bytes_t),
       &bytesRead
    );
@@ -62,31 +59,18 @@ void HookWinAPIFunction(
       printf("bytes read = %d!!!!\n", bytesRead);
    }
 
-
-   function_entry_point_bytes_t patch; //  = { 0 };
+   function_entry_point_bytes_t patch;
 
    void *address_of_hook = fn_hook;
 
-   memcpy_s(patch    , 1, "\x68"                  , 1);
-   memcpy_s(patch + 1, 4, &address_of_hook        , 4);  // address of address of hook!
-   memcpy_s(patch + 5, 1, "\xC3"                  , 1);
+   memcpy_s(patch    , 1, "\x68"          , 1);  // 68 = push (?)
+   memcpy_s(patch + 1, 4, &address_of_hook, 4);  // address of address of hook!
+   memcpy_s(patch + 5, 1, "\xC3"          , 1);  // C3 = ret
 
    modifyFunctionEntry(
      *hook,
       patch
    );
-
-/*
-// patch the MessageBoxA
-   WriteProcessMemory(
-      GetCurrentProcess(),
-      hook->fn_orig     , // messageBoxAddress,
-      patch,
-      sizeof(patch),
-      &bytesWritten
-   );
-*/
-
 
 }
 
@@ -94,18 +78,7 @@ void UnHookWinAPIFunction(hook_t hook) {
 
    modifyFunctionEntry(
       hook,
-      hook.function_entry_point_bytes
+      hook.orig_entry_bytes
    );
-
-/*
-   WriteProcessMemory(
-      GetCurrentProcess(),
-      hook.fn_orig, // messageBoxAddress,
-      hook.function_entry_point_bytes, // messageBoxOriginalBytes,
-      sizeof(function_entry_point_bytes_t),
-     &bytesWritten
-   );
-   */
 
 }
-
