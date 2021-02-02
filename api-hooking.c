@@ -9,16 +9,15 @@
 
 void modifyFunctionEntry(
    hook_t                       hook,
-// HANDLE                       process,
    function_entry_point_bytes_t bytes
 )
 {
    SIZE_T  bytesWritten = 0;
 
    WriteProcessMemory(
-      hook.process, // GetCurrentProcess(),
+      hook.process,
       hook.fn_orig,
-      bytes, // messageBoxOriginalBytes,
+      bytes,
       sizeof(function_entry_point_bytes_t), // sizeof(messageBoxOriginalBytes),
      &bytesWritten
    );
@@ -28,7 +27,6 @@ void modifyFunctionEntry(
       printf("bytesWritten = %d!!!!\n", bytesWritten);
 
    }
-
 }
 
 void HookWinAPIFunction(
@@ -64,9 +62,9 @@ void HookWinAPIFunction(
 
    void *address_of_hook = fn_hook;
 
-   memcpy_s(patch    , 1, "\x68"          , 1);  // 68 = push (?)
+   memcpy_s(patch    , 1, "\x68"          , 1);  // 68 = push
    memcpy_s(patch + 1, 4, &address_of_hook, 4);  // address of address of hook!
-   memcpy_s(patch + 5, 1, "\xC3"          , 1);  // C3 = ret
+   memcpy_s(patch + 5, 1, "\xC3"          , 1);  // C3 = ret (to address that was just pushed onto the stack)
 
    modifyFunctionEntry(
      *hook,

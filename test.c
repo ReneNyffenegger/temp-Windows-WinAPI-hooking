@@ -10,7 +10,7 @@ int __stdcall HookedMessageBox(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT 
    printf("Caption: %s\nText:    %s\n", lpCaption, lpText);
    
 // call the original MessageBoxA
-// return fn_orig(NULL, lpText, lpCaption, uType);
+// return fn_orig(NULL, lpText, lpCaption, uType); /* Problem: if not restored, infinite recursion occurs */
    return 0;
 }
 
