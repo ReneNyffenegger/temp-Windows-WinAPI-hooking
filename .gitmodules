@@ -1,3 +1,6 @@
 [submodule "Detours"]
 	path = Detours
 	url = https://github.com/microsoft/Detours.git
+[submodule "tq84-c-debug"]
+	path = tq84-c-debug
+	url = https://github.com/ReneNyffenegger/tq84-c-debug
