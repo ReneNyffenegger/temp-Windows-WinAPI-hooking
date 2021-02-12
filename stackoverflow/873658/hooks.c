@@ -16,12 +16,16 @@ void (WINAPI *real_GetSystemTime)(LPSYSTEMTIME  );
 void WINAPI     my_GetSystemTime (LPSYSTEMTIME t) {
 
    real_GetSystemTime(t);
+
+// Change year, month and day …
    t -> wYear   = 1970;
    t -> wMonth  =    8;
    t -> wDay    =   28;
-   t -> wHour   =   22;
-   t -> wMinute =   22;
-   t -> wSecond =   23;
+
+// … but leave hour, minute and secnod
+// t -> wHour   =   22;
+// t -> wMinute =   22;
+// t -> wSecond =   23;
 
 }
 
@@ -59,24 +63,46 @@ BOOL WINAPI DllMain(HINSTANCE i, DWORD dwReason, LPVOID l) {
 //        tq84_debug_open("hook.debug.out", "w");
           TQ84_DEBUG("Calling DetourTransactionBegin");
           TQ84_DEBUG_INDENT_T("DLL_PROCESS_ATTACH");
-          DetourTransactionBegin();
+
+          if (DetourTransactionBegin() != NO_ERROR) {
+             TQ84_DEBUG("DetourTransactionBegin failed");
+             return FALSE; 
+          }
           TQ84_DEBUG("Calling DetourUpdateThread");
-          DetourUpdateThread( GetCurrentThread() );
+
+          if (  DetourUpdateThread( GetCurrentThread()) != NO_ERROR ) {
+             TQ84_DEBUG("DetourUpdateThread failed");
+             return FALSE; 
+          }
 
 //        DetourAttach( &(PVOID &) real_MessageBox, my_MessageBox );
 //        DetourAttach(  (PVOID*) &real_MessageBox, (PVOID) my_MessageBox );
 //
+//
+          real_GetSystemTime = GetSystemTime;
           TQ84_DEBUG("Calling DetourAttach");
-          DetourAttach(  (PVOID*) &real_GetSystemTime, (PVOID) my_GetSystemTime );
+          LONG dar;
+          if ( (dar = DetourAttach(  (PVOID*) &real_GetSystemTime, (PVOID) my_GetSystemTime )) != NO_ERROR ) {
+             TQ84_DEBUG("DetourAttach failed");
+             if      (dar == ERROR_INVALID_BLOCK      ) { TQ84_DEBUG("ERROR_INVALID_BLOCK"    ); }
+             else if (dar == ERROR_INVALID_HANDLE     ) { TQ84_DEBUG("ERROR_INVALID_HANDLE"   ); }
+             else if (dar == ERROR_INVALID_OPERATION  ) { TQ84_DEBUG("ERROR_INVALID_OPERATION"); }
+             else if (dar == ERROR_NOT_ENOUGH_MEMORY  ) { TQ84_DEBUG("ERROR_NOT_ENOUGH_MEMORY"); }
+             return FALSE; 
+          }
 //
 //        DetourAttach( &(PVOID &)Real_Recv, Mine_Recv );
+//
           TQ84_DEBUG("Calling DetourTransactionCommit");
-          DetourTransactionCommit();
+          if ( DetourTransactionCommit() != NO_ERROR) {
+             TQ84_DEBUG("DetourTransactionCommit failed");
+             return FALSE; 
+          }
 //        TQ84_DEBUG_DEDENT();
          }
          break;
 // 
-      case DLL_PROCESS_DETACH:
+      case DLL_PROCESS_DETACH: {
             DetourTransactionBegin();
             DetourUpdateThread( GetCurrentThread() );
             
@@ -86,6 +112,7 @@ BOOL WINAPI DllMain(HINSTANCE i, DWORD dwReason, LPVOID l) {
 
 //          DetourDetach( &(PVOID &)Real_Recv, Mine_Recv );
             DetourTransactionCommit(); 
+      }
       break;
   }
 
