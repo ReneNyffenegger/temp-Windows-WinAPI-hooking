@@ -4,3 +4,6 @@
 [submodule "tq84-c-debug"]
 	path = tq84-c-debug
 	url = https://github.com/ReneNyffenegger/tq84-c-debug
+[submodule "Chronomorph"]
+	path = Chronomorph
+	url = https://github.com/LepiKlark/Chronomorph
