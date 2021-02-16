@@ -42,8 +42,13 @@ int      WINAPI GetTimeFormatW_hook(LCID             Locale, DWORD            dw
 
 void WINAPI GetSystemTimeAsFileTime_hook(LPFILETIME t) {
    TQ84_DEBUG_INDENT();
-   MessageBox(0, "GetSystemTimeAsFileTime_hook", 0, 0);
+   char buf[200];
    GetSystemTimeAsFileTime_real(t);
+   sprintf(buf, "GetSystemTimeAsFileTime_hook %u %u", t->dwLowDateTime, t->dwHighDateTime);
+   MessageBox(0, buf, "TQ84", 0);
+
+   t->dwLowDateTime  = 0;
+   t->dwHighDateTime = 0;
 }
 
 void WINAPI GetSystemTimePreciseAsFileTime_hook(LPFILETIME t) {
@@ -81,14 +86,14 @@ void WINAPI GetLocalTime_hook (LPSYSTEMTIME t) {
 void WINAPI   GetSystemTime_hook (LPSYSTEMTIME t) {
 
    TQ84_DEBUG_INDENT();
-   MessageBox(0, "GetSystemTime_real", 0, 0);
+   MessageBox(0, "GetSystemTime", "hook", 0);
 
    GetSystemTime_real(t);
 
 // Change year, month and day …
-// t -> wYear   = 1970;
-// t -> wMonth  =    8;
-// t -> wDay    =   28;
+   t -> wYear   = 1970;
+   t -> wMonth  =    8;
+   t -> wDay    =   28;
 
 // … but leave hour, minute and secnod
 // t -> wHour   =   22;

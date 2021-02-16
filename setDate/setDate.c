@@ -33,11 +33,12 @@ int main() {
 
  if (! DetourCreateProcessWithDllEx (
       0                , // _In_opt_    LPCTSTR lpApplicationName,
-     "git commit a -m ""test"""     , // _Inout_opt_ LPTSTR lpCommandLine,
-//   "..\\stackoverflow\\873658\\target.exe"     , // _Inout_opt_ LPTSTR lpCommandLine,
+     "c:\\windows\\system32\\Notepad.exe", // _Inout_opt_ LPTSTR lpCommandLine,
+//   "git commit a -m ""test"""     , // _Inout_opt_ LPTSTR lpCommandLine,
+//   "target.exe"      , // _Inout_opt_ LPTSTR lpCommandLine,
       0                , // _In_opt_    LPSECURITY_ATTRIBUTES lpProcessAttributes,
       0                , // _In_opt_    LPSECURITY_ATTRIBUTES lpThreadAttributes,
-      1                , // _In_        BOOL bInheritHandles,
+      0                , // _In_        BOOL bInheritHandles,
       CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED                , // _In_        DWORD dwCreationFlags,
       0                , // _In_opt_    LPVOID lpEnvironment,
       0                , // _In_opt_    LPCTSTR lpCurrentDirectory,
