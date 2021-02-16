@@ -45,7 +45,8 @@ int main() {
      &si              , // _In_        LPSTARTUPINFOW lpStartupInfo,
      &pi              , // _Out_       LPPROCESS_INFORMATION lpProcessInformation,
 //   "hooks.dll"      , // _In_        LPCSTR lpDllName,
-     "C:\\Users\\r.nyffenegger\\github\\temp\\Windows-WinAPI-hooking\\setDate\\hooks.dll"      , // _In_        LPCSTR lpDllName,
+//   "C:\\Users\\r.nyffenegger\\github\\temp\\Windows-WinAPI-hooking\\setDate\\hooks.dll"      , // _In_        LPCSTR lpDllName,
+     "C:\\Users\\Rene\\github\\temp\\Windows\\WinAPI-hooking\\setDate\\hooks.dll"      , // _In_        LPCSTR lpDllName,
       0                 // _In_opt_    PDETOUR_CREATE_PROCESS_ROUTINEW pfCreateProcessW
   )) {
 

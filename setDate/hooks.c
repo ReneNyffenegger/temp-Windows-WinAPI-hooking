@@ -68,13 +68,13 @@ NTSTATUS WINAPI NtQuerySystemTime_hook(PLARGE_INTEGER t) {
 void WINAPI GetLocalTime_hook (LPSYSTEMTIME t) {
    TQ84_DEBUG_INDENT();
 
-   MessageBox(0, "GetLocalTime_real", 0, 0);
+   MessageBox(0, "GetLocalTime", "hook", 0);
    GetLocalTime_real(t);
 
 // Change year, month and day …
-// t -> wYear   = 1970;
-// t -> wMonth  =    8;
-// t -> wDay    =   28;
+   t -> wYear   = 1970;
+   t -> wMonth  =    8;
+   t -> wDay    =   28;
 
 // … but leave hour, minute and secnod
 // t -> wHour   =   22;
