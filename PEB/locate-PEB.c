@@ -2,8 +2,8 @@
 #include <winternl.h>
 
 typedef NTSTATUS (WINAPI *PFN_NtQueryInformationProcess)(
-//  IN HANDLE               ProcessHandle,
-    IN DWORD                ProcessHandle,
+    IN HANDLE               ProcessHandle,
+//  IN DWORD                ProcessHandle,
     IN PROCESSINFOCLASS       ProcessInformationClass,
     IN PVOID                ProcessInformation,
     IN ULONG                ProcessInformationLength,
@@ -26,7 +26,7 @@ int main()
      return 1;
    }
 
-  pfnQueryProcess(GetCurrentProcessId(), ProcessBasicInformation, &pbi, sizeof(pbi), &result);
+  pfnQueryProcess(GetCurrentProcess(), ProcessBasicInformation, &pbi, sizeof(pbi), &result);
 
   // Modify ProcessParameters->CommandLine
 
